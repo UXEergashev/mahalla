@@ -1,0 +1,30 @@
+// Samarqand viloyati, Bulung'ur tumani mahallalari
+export const BULUNG_UR_MAHALLAHS = [
+  "Yangi hayot",
+  "Navbahor",
+  "Mustaqillik",
+  "Bog'ishamol",
+  "Zafar",
+  "Hamkor",
+  "Do'stlik",
+  "Tinchlik",
+  "Baxt",
+  "Guliston",
+  "Mehr",
+  "Sarvar",
+  "Paxtakor",
+  "Birlashgan",
+  "Fayz",
+  "Istiqbol",
+  "Yangi tong",
+  "Omad",
+  "Baraka",
+  "Shifo",
+  "Nishon",
+  "Yulduz",
+  "Ko'hna shahар",
+  "Ко'klam",
+  "Hasanboy",
+];
+
+export const ALL_MAHALLAHS = ['Barchasi', ...BULUNG_UR_MAHALLAHS];

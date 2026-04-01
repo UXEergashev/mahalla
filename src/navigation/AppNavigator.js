@@ -15,6 +15,7 @@ import ProfileScreen from '../screens/main/ProfileScreen';
 import ProviderDetailScreen from '../screens/main/ProviderDetailScreen';
 import AllRequestsScreen from '../screens/main/AllRequestsScreen';
 import NotificationsScreen from '../screens/main/NotificationsScreen';
+import AdminScreen from '../screens/main/AdminScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -124,6 +125,11 @@ export function AppNavigator() {
       <Stack.Screen
         name="Notifications"
         component={NotificationsScreen}
+        options={{ presentation: 'card' }}
+      />
+      <Stack.Screen
+        name="Admin"
+        component={AdminScreen}
         options={{ presentation: 'card' }}
       />
     </Stack.Navigator>

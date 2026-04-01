@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, Alert, Image, ActivityIndicator,
+  TextInput, Alert, Image, ActivityIndicator, Modal, Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { COLORS, SHADOWS } from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
+import { BULUNG_UR_MAHALLAHS } from '../../constants/mahallahs';
 
 
 const CATEGORIES = [
@@ -22,10 +23,7 @@ const CATEGORIES = [
   { id: 'health', label: 'Sog\'liq', icon: 'medical' },
 ];
 
-const MAHALLAHS = [
-  'Yunusobod', 'Chilonzor', 'Mirzo Ulug\'bek', 'Yakkasaroy',
-  'Shayxontohur', 'Olmazor', 'Sirg\'ali', 'Uchtepa', 'Bektemir',
-];
+const MAHALLAHS = BULUNG_UR_MAHALLAHS;
 
 function StatCard({ icon, value, label, color }) {
   return (
@@ -51,6 +49,48 @@ export default function ProfileScreen({ navigation }) {
   const [selectedMahalla, setSelectedMahalla] = useState(userProfile?.mahalla || '');
   const [avatar, setAvatar] = useState(userProfile?.avatar || null);
   const [saving, setSaving] = useState(false);
+
+  // Admin modal
+  const [adminModalVisible, setAdminModalVisible] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminError, setAdminError] = useState('');
+
+  const openAdminPanel = () => {
+    if (Platform.OS === 'ios') {
+      Alert.prompt(
+        '🛡️ Admin Panel',
+        'Kirish uchun parolni kiriting:',
+        [
+          { text: 'Bekor qilish', style: 'cancel' },
+          {
+            text: 'Kirish',
+            onPress: (pwd) => {
+              if (pwd === 'admin123') {
+                navigation.navigate('Admin');
+              } else {
+                Alert.alert('❌ Xato', 'Parol noto\'g\'ri!');
+              }
+            },
+          },
+        ],
+        'secure-text'
+      );
+    } else {
+      setAdminPassword('');
+      setAdminError('');
+      setAdminModalVisible(true);
+    }
+  };
+
+  const handleAdminLogin = () => {
+    if (adminPassword === 'admin123') {
+      setAdminModalVisible(false);
+      setAdminPassword('');
+      navigation.navigate('Admin');
+    } else {
+      setAdminError('Parol noto\'g\'ri! Qayta urinib ko\'ring.');
+    }
+  };
 
   const myProvider = providers.find(p => p.id === userProfile?.id);
   const myReviews = myProvider ? getProviderReviews(myProvider.id) : [];
@@ -95,12 +135,73 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+
+      {/* ══ ADMIN LOGIN MODAL (Android uchun) ══ */}
+      <Modal
+        visible={adminModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAdminModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <LinearGradient colors={['#1E1B4B', '#2563EB']} style={styles.modalHeader}>
+              <Ionicons name="shield-checkmark" size={32} color="#A5B4FC" />
+              <Text style={styles.modalTitle}>Admin Panel</Text>
+              <Text style={styles.modalSubtitle}>Davom etish uchun parol kiriting</Text>
+            </LinearGradient>
+            <View style={styles.modalBody}>
+              <View style={styles.modalInputWrap}>
+                <Ionicons name="lock-closed-outline" size={18} color={COLORS.textMuted} />
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="Parol..."
+                  placeholderTextColor={COLORS.textMuted}
+                  value={adminPassword}
+                  onChangeText={(t) => { setAdminPassword(t); setAdminError(''); }}
+                  secureTextEntry
+                  autoFocus
+                  onSubmitEditing={handleAdminLogin}
+                />
+              </View>
+              {adminError !== '' && (
+                <Text style={styles.modalError}>{adminError}</Text>
+              )}
+              <View style={styles.modalBtns}>
+                <TouchableOpacity
+                  style={styles.modalCancelBtn}
+                  onPress={() => setAdminModalVisible(false)}
+                >
+                  <Text style={styles.modalCancelText}>Bekor qilish</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalConfirmBtn}
+                  onPress={handleAdminLogin}
+                >
+                  <LinearGradient colors={['#4F46E5', '#2563EB']} style={styles.modalConfirmGrad}>
+                    <Ionicons name="enter-outline" size={16} color="#fff" />
+                    <Text style={styles.modalConfirmText}>Kirish</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <LinearGradient colors={[categoryColor + 'CC', categoryColor, COLORS.primaryDark]} style={styles.header}>
           <View style={styles.headerActions}>
             <Text style={styles.headerTitle}>Profil</Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
+              {/* Admin panel tugmasi — parolli */}
+              <TouchableOpacity
+                style={[styles.iconBtn, { backgroundColor: 'rgba(124,58,237,0.35)' }]}
+                onPress={openAdminPanel}
+              >
+                <Ionicons name="shield-checkmark" size={20} color="#C4B5FD" />
+              </TouchableOpacity>
               {editing ? (
                 <>
                   <TouchableOpacity style={styles.iconBtn} onPress={() => setEditing(false)}>
@@ -414,4 +515,42 @@ const styles = StyleSheet.create({
   portfolioCaptionText: { fontSize: 9, color: COLORS.textInverse },
   portfolioMoreBtn: { width: '31.5%', aspectRatio: 1, borderRadius: 10, backgroundColor: COLORS.surfaceElevated, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: COLORS.border },
   portfolioMoreText: { fontSize: 13, fontWeight: '700', color: COLORS.primary },
+
+  // Admin Modal
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center', alignItems: 'center', padding: 24,
+  },
+  modalBox: {
+    width: '100%', borderRadius: 24, overflow: 'hidden', backgroundColor: COLORS.surface,
+    ...SHADOWS.large,
+  },
+  modalHeader: {
+    paddingVertical: 28, alignItems: 'center', gap: 8,
+  },
+  modalTitle: { fontSize: 22, fontWeight: '800', color: '#fff' },
+  modalSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.75)' },
+  modalBody: { padding: 24 },
+  modalInputWrap: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: COLORS.surfaceElevated, borderRadius: 14,
+    paddingHorizontal: 16, paddingVertical: 13,
+    borderWidth: 1, borderColor: COLORS.border, marginBottom: 8,
+  },
+  modalInput: { flex: 1, fontSize: 15, color: COLORS.text },
+  modalError: { fontSize: 13, color: COLORS.error, fontWeight: '500', marginBottom: 8 },
+  modalBtns: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  modalCancelBtn: {
+    flex: 1, paddingVertical: 13, borderRadius: 14,
+    backgroundColor: COLORS.surfaceElevated, alignItems: 'center',
+    borderWidth: 1, borderColor: COLORS.border,
+  },
+  modalCancelText: { fontSize: 15, color: COLORS.textSecondary, fontWeight: '600' },
+  modalConfirmBtn: { flex: 1, borderRadius: 14, overflow: 'hidden' },
+  modalConfirmGrad: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 6, paddingVertical: 13,
+  },
+  modalConfirmText: { fontSize: 15, fontWeight: '700', color: '#fff' },
 });
+

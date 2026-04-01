@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SHADOWS } from '../../constants/colors';
 import { useData } from '../../context/DataContext';
+import { ALL_MAHALLAHS } from '../../constants/mahallahs';
 
 const CATEGORIES = [
   { id: 'all', label: 'Barchasi', icon: 'apps' },
@@ -20,7 +21,7 @@ const CATEGORIES = [
   { id: 'health', label: 'Sog\'liq', icon: 'medical' },
 ];
 
-const MAHALLAHS = ['Barchasi', 'Yunusobod', 'Chilonzor', 'Mirzo Ulug\'bek', 'Yakkasaroy', 'Shayxontohur', 'Olmazor'];
+const MAHALLAHS = ALL_MAHALLAHS;
 
 const SORT_OPTIONS = [
   { id: 'rating', label: 'Reyting' },

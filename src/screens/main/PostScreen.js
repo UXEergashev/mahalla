@@ -9,6 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { COLORS, SHADOWS } from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
+import { BULUNG_UR_MAHALLAHS } from '../../constants/mahallahs';
 
 const CATEGORIES = [
   { id: 'repair', label: 'Ta\'mirlash', icon: 'construct', color: '#EF4444' },
@@ -21,10 +22,8 @@ const CATEGORIES = [
   { id: 'health', label: 'Sog\'liq', icon: 'medical', color: '#06B6D4' },
 ];
 
-const MAHALLAHS = [
-  'Yunusobod', 'Chilonzor', 'Mirzo Ulug\'bek', 'Yakkasaroy',
-  'Shayxontohur', 'Olmazor', 'Sirg\'ali', 'Uchtepa', 'Bektemir',
-];
+const MAHALLAHS = BULUNG_UR_MAHALLAHS;
+
 
 export default function PostScreen({ navigation }) {
   const { userProfile } = useAuth();
